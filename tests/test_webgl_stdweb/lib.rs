@@ -13,6 +13,14 @@
 // limitations under the License.
 
 #![allow(unused_parens, non_camel_case_types)]
+#![allow(bad_style)]
+#![allow(clippy::unreadable_literal)]
+#![allow(clippy::missing_safety_doc)]
+#![allow(clippy::too_many_arguments)]
+#![allow(clippy::let_unit_value)]
+#![allow(clippy::let_and_return)]
+#![allow(clippy::unused_unit)]
+#![allow(clippy::tabs_in_doc_comments)]
 
 #[macro_use]
 extern crate serde_derive;
@@ -22,9 +30,25 @@ extern crate stdweb;
 extern crate stdweb_derive;
 
 mod webgl {
+    #![allow(bad_style)]
+    #![allow(clippy::unreadable_literal)]
+    #![allow(clippy::missing_safety_doc)]
+    #![allow(clippy::too_many_arguments)]
+    #![allow(clippy::let_unit_value)]
+    #![allow(clippy::let_and_return)]
+    #![allow(clippy::unused_unit)]
+    #![allow(clippy::tabs_in_doc_comments)]
     include!(concat!(env!("OUT_DIR"), "/test_webgl_stdweb.rs"));
 }
 
 mod webgl2 {
+    #![allow(bad_style)]
+    #![allow(clippy::unreadable_literal)]
+    #![allow(clippy::missing_safety_doc)]
+    #![allow(clippy::too_many_arguments)]
+    #![allow(clippy::let_unit_value)]
+    #![allow(clippy::let_and_return)]
+    #![allow(clippy::unused_unit)]
+    #![allow(clippy::tabs_in_doc_comments)]
     include!(concat!(env!("OUT_DIR"), "/test_webgl2_stdweb.rs"));
 }

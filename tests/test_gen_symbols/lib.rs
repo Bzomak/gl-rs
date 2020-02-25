@@ -12,6 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#![allow(bad_style)]
+#![allow(clippy::unreadable_literal)]
+#![allow(clippy::missing_safety_doc)]
+#![allow(clippy::too_many_arguments)]
+#![allow(clippy::let_unit_value)]
+#![allow(clippy::let_and_return)]
+#![allow(clippy::unused_unit)]
+#![allow(clippy::redundant_static_lifetimes)]
+
 use std::os::raw;
 
 include!(concat!(env!("OUT_DIR"), "/test_gen_symbols.rs"));

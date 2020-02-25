@@ -1,3 +1,5 @@
+#![allow(clippy::trivial_regex)]
+
 use std::collections::BTreeMap;
 use std::str;
 
