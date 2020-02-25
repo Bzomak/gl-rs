@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#![allow(clippy::needless_doctest_main)]
+
 //! An OpenGL bindings generator. It defines a function named `generate_bindings` which can be
 //! used to generate all constants and functions of a given OpenGL version.
 //!

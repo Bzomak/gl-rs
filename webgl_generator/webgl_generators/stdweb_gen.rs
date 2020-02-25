@@ -78,22 +78,20 @@ enum ArgWrapper {
 
 impl ArgWrapper {
     fn wrap(&self, arg: &str) -> String {
-        match self {
-            &ArgWrapper::None => arg.into(),
-            &ArgWrapper::AsTypedArray => format!("unsafe {{ {}.as_typed_array() }}", arg),
-            &ArgWrapper::AsArrayBufferView => {
-                format!("unsafe {{ {}.as_array_buffer_view() }}", arg)
-            },
-            &ArgWrapper::Optional(ref inner) => {
+        match *self {
+            ArgWrapper::None => arg.into(),
+            ArgWrapper::AsTypedArray => format!("unsafe {{ {}.as_typed_array() }}", arg),
+            ArgWrapper::AsArrayBufferView => format!("unsafe {{ {}.as_array_buffer_view() }}", arg),
+            ArgWrapper::Optional(ref inner) => {
                 format!("{}.map(|inner| {})", arg, inner.wrap("inner"))
             },
-            &ArgWrapper::Sequence(ref inner) => format!(
+            ArgWrapper::Sequence(ref inner) => format!(
                 "{}.iter().map(|inner| {}).collect::<Vec<_>>()",
                 arg,
                 inner.wrap("inner")
             ),
-            &ArgWrapper::DoubleCast => format!("({} as f64)", arg),
-            &ArgWrapper::Once => format!("Once({})", arg),
+            ArgWrapper::DoubleCast => format!("({} as f64)", arg),
+            ArgWrapper::Once => format!("Once({})", arg),
         }
     }
 }
@@ -122,13 +120,13 @@ fn process_arg_type_kind(
 ) -> ProcessedArg {
     let (name, flat_kind) = type_kind.flatten(registry);
     match flat_kind {
-        &TypeKind::Primitive(ref p) => match p {
-            &Primitive::I64 => ProcessedArg {
+        &TypeKind::Primitive(ref p) => match *p {
+            Primitive::I64 => ProcessedArg {
                 type_: name.unwrap().into(),
                 wrapper: ArgWrapper::DoubleCast,
                 optional: false,
             },
-            &Primitive::U64 => ProcessedArg {
+            Primitive::U64 => ProcessedArg {
                 type_: name.unwrap().into(),
                 wrapper: ArgWrapper::DoubleCast,
                 optional: false,
@@ -236,9 +234,9 @@ enum ResultWrapper {
 
 impl ResultWrapper {
     fn wrap(&self, content: &str) -> String {
-        match self {
-            &ResultWrapper::TryInto => format!("{}.try_into().unwrap()", content),
-            &ResultWrapper::Ok => format!("{}.try_into().ok()", content),
+        match *self {
+            ResultWrapper::TryInto => format!("{}.try_into().unwrap()", content),
+            ResultWrapper::Ok => format!("{}.try_into().ok()", content),
         }
     }
 }
@@ -612,16 +610,16 @@ impl {name} {{
 
     for (name, members) in interface.collect_members(registry, &VisitOptions::default()) {
         for (index, member) in members.into_iter().enumerate() {
-            match member {
-                &Member::Const(ref const_) => {
+            match *member {
+                Member::Const(ref const_) => {
                     assert!(index == 0);
                     write_const(&name, const_, registry, dest)?;
                 },
-                &Member::Attribute(ref attribute) => {
+                Member::Attribute(ref attribute) => {
                     assert!(index == 0);
                     write_attribute(&name, attribute, registry, dest)?;
                 },
-                &Member::Operation(ref operation) => {
+                Member::Operation(ref operation) => {
                     write_operation(&name, index, operation, registry, dest)?;
                 },
             }
@@ -763,9 +761,8 @@ fn write_operation<W>(
 where
     W: io::Write,
 {
-    match name {
-        "getExtension" => return write_get_extension(dest),
-        _ => {},
+    if let "getExtension" = name {
+        return write_get_extension(dest);
     }
 
     let mut rust_name = unreserve(snake(name));

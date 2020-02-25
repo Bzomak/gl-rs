@@ -39,7 +39,7 @@ pub fn convert_html_to_doc_comment(html: &str) -> String {
 
 /// Appends an underscore to a name if it conflicts with a reserved word.
 pub fn unreserve<S: Into<String>>(name: S) -> String {
-    const RESERVED_WORDS: &'static [&'static str] = &[
+    const RESERVED_WORDS: &[&str] = &[
         "as", "break", "const", "continue", "crate", "else", "enum", "extern", "false", "fn",
         "for", "if", "impl", "in", "let", "loop", "match", "mod", "move", "mut", "pub", "ref",
         "return", "Self", "self", "static", "struct", "super", "trait", "true", "type", "unsafe",

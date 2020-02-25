@@ -102,7 +102,7 @@ impl Registry {
 
         // Find the latest version of the rendering context, and generate a
         // version-independent rendering context helper type called "GLContext".
-        for name in RENDERING_CONTEXTS.into_iter().rev() {
+        for name in RENDERING_CONTEXTS.iter().rev() {
             if let Some(NamedType::Interface(mut iface)) = result.types.get(name.1).cloned() {
                 iface.rendering_context = None;
                 result
@@ -289,11 +289,11 @@ impl Registry {
     }
 
     fn load_interface(&mut self, interface: ast::NonPartialInterface) {
-        fn has_attr(attrs: &Vec<ast::ExtendedAttribute>, name: &str) -> bool {
+        fn has_attr(attrs: &[ast::ExtendedAttribute], name: &str) -> bool {
             use self::ast::ExtendedAttribute::*;
             for attr in attrs {
                 if let NoArguments(ref other) = *attr {
-                    if let &ast::Other::Identifier(ref n) = other {
+                    if let ast::Other::Identifier(ref n) = *other {
                         return n == name;
                     }
                 }
