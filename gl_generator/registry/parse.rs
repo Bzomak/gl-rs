@@ -145,13 +145,13 @@ fn trim_enum_prefix(ident: &str, api: Api) -> String {
 
 fn make_enum(ident: String, ty: Option<String>, value: String, alias: Option<String>) -> Enum {
     let (ty, value, cast) = {
-        if value.starts_with("((") && value.ends_with(")") {
+        if value.starts_with("((") && value.ends_with(')') {
             // Some enums have a value of the form `'((' type ')' expr ')'`.
 
             // nothing to see here....
             // just brute forcing some paren matching... (ﾉ ◕ ◡ ◕)ﾉ *:･ﾟ✧
             let working = &value[2..value.len() - 1];
-            if let Some((i, _)) = working.match_indices(")").next() {
+            if let Some((i, _)) = working.match_indices(')').next() {
                 let ty = working[..i].to_string();
                 let value = working[i + 1..].to_string();
 
@@ -164,7 +164,7 @@ fn make_enum(ident: String, ty: Option<String>, value: String, alias: Option<Str
                 Some(ref ty) if ty == "u" => "GLuint",
                 Some(ref ty) if ty == "ull" => "GLuint64",
                 Some(ty) => panic!("Unhandled enum type: {}", ty),
-                None if value.starts_with("\"") => "&'static str",
+                None if value.starts_with('"') => "&'static str",
                 None if ident == "TRUE" || ident == "FALSE" => "GLboolean",
                 None => "GLenum",
             };
@@ -173,21 +173,21 @@ fn make_enum(ident: String, ty: Option<String>, value: String, alias: Option<Str
     };
 
     Enum {
-        ident: ident,
-        value: value,
-        cast: cast,
-        alias: alias,
-        ty: ty,
+        ident,
+        value,
+        cast,
+        alias,
+        ty,
     }
 }
 
 fn make_egl_enum(ident: String, ty: Option<String>, value: String, alias: Option<String>) -> Enum {
     let (ty, value, cast) = {
-        if value.starts_with("EGL_CAST(") && value.ends_with(")") {
+        if value.starts_with("EGL_CAST(") && value.ends_with(')') {
             // Handling "SpecialNumbers" in the egl.xml file
             // The values for these enums has the form `'EGL_CAST(' type ',' expr ')'`.
             let working = &value[9..value.len() - 1];
-            if let Some((i, _)) = working.match_indices(",").next() {
+            if let Some((i, _)) = working.match_indices(',').next() {
                 let ty = working[..i].to_string();
                 let value = working[i + 1..].to_string();
 
@@ -213,11 +213,11 @@ fn make_egl_enum(ident: String, ty: Option<String>, value: String, alias: Option
     };
 
     Enum {
-        ident: ident,
-        value: value,
-        cast: cast,
-        alias: alias,
-        ty: ty,
+        ident,
+        value,
+        cast,
+        alias,
+        ty,
     }
 }
 
@@ -287,6 +287,7 @@ pub struct Filter {
 }
 
 trait Parse: Sized + Iterator<Item = ParseEvent> {
+    #[allow(clippy::cognitive_complexity)]
     fn parse(mut self, filter: &Filter, require_feature: bool) -> Registry {
         self.consume_start_element("registry");
 
@@ -358,8 +359,8 @@ trait Parse: Sized + Iterator<Item = ParseEvent> {
             // XXX: verify that the string comparison with <= actually works as desired
             if feature.api == filter.api && feature.number <= filter.version {
                 for require in &feature.requires {
-                    desired_enums.extend(require.enums.iter().map(|x| x.clone()));
-                    desired_cmds.extend(require.commands.iter().map(|x| x.clone()));
+                    desired_enums.extend(require.enums.iter().cloned());
+                    desired_cmds.extend(require.commands.iter().cloned());
                 }
 
                 for remove in &feature.removes {
@@ -393,8 +394,8 @@ trait Parse: Sized + Iterator<Item = ParseEvent> {
                     );
                 }
                 for require in &extension.requires {
-                    desired_enums.extend(require.enums.iter().map(|x| x.clone()));
-                    desired_cmds.extend(require.commands.iter().map(|x| x.clone()));
+                    desired_enums.extend(require.enums.iter().cloned());
+                    desired_cmds.extend(require.commands.iter().cloned());
                 }
             }
         }
@@ -540,7 +541,7 @@ trait Parse: Sized + Iterator<Item = ParseEvent> {
     }
 
     fn consume_enum(&mut self, api: Api, attributes: &[Attribute]) -> Enum {
-        let ident = trim_enum_prefix(&get_attribute(&attributes, "name").unwrap(), api).to_string();
+        let ident = trim_enum_prefix(&get_attribute(&attributes, "name").unwrap(), api);
         let value = get_attribute(&attributes, "value").unwrap();
         let alias = get_attribute(&attributes, "alias");
         let ty = get_attribute(&attributes, "type");
@@ -654,11 +655,11 @@ trait Parse: Sized + Iterator<Item = ParseEvent> {
         }
 
         Cmd {
-            proto: proto,
-            params: params,
-            alias: alias,
-            vecequiv: vecequiv,
-            glx: glx,
+            proto,
+            params,
+            alias,
+            vecequiv,
+            glx,
         }
     }
 
@@ -689,7 +690,7 @@ trait Parse: Sized + Iterator<Item = ParseEvent> {
         }
 
         Binding {
-            ident: ident,
+            ident,
             ty: to_rust_ty(ty),
             group: get_attribute(&attributes, "group"),
         }
@@ -713,10 +714,7 @@ impl FromXml for Require {
     fn convert<P: Parse>(parser: &mut P, _: &[Attribute]) -> Require {
         debug!("Doing a FromXml on Require");
         let (enums, commands) = parser.consume_two("enum", "command", "require");
-        Require {
-            enums: enums,
-            commands: commands,
-        }
+        Require { enums, commands }
     }
 }
 
@@ -728,9 +726,9 @@ impl FromXml for Remove {
         let (enums, commands) = parser.consume_two("enum", "command", "remove");
 
         Remove {
-            profile: profile,
-            enums: enums,
-            commands: commands,
+            profile,
+            enums,
+            commands,
         }
     }
 }
@@ -748,9 +746,9 @@ impl FromXml for Feature {
         let (require, remove) = parser.consume_two("require", "remove", "feature");
 
         Feature {
-            api: api,
-            name: name,
-            number: number,
+            api,
+            name,
+            number,
             requires: require,
             removes: remove,
         }
@@ -780,8 +778,8 @@ impl FromXml for Extension {
         }
 
         Extension {
-            name: name,
-            supported: supported,
+            name,
+            supported,
             requires: require,
         }
     }
