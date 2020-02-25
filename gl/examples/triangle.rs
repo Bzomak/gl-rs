@@ -25,7 +25,7 @@ use std::str;
 static VERTEX_DATA: [GLfloat; 6] = [0.0, 0.5, 0.5, -0.5, -0.5, -0.5];
 
 // Shader sources
-static VS_SRC: &'static str = "
+static VS_SRC: &str = "
 #version 150
 in vec2 position;
 
@@ -33,7 +33,7 @@ void main() {
     gl_Position = vec4(position, 0.0, 1.0);
 }";
 
-static FS_SRC: &'static str = "
+static FS_SRC: &str = "
 #version 150
 out vec4 out_color;
 
@@ -68,9 +68,7 @@ fn compile_shader(src: &str, ty: GLenum) -> GLuint {
             );
             panic!(
                 "{}",
-                str::from_utf8(&buf)
-                    .ok()
-                    .expect("ShaderInfoLog not valid utf8")
+                str::from_utf8(&buf).expect("ShaderInfoLog not valid utf8")
             );
         }
     }
@@ -101,9 +99,7 @@ fn link_program(vs: GLuint, fs: GLuint) -> GLuint {
             );
             panic!(
                 "{}",
-                str::from_utf8(&buf)
-                    .ok()
-                    .expect("ProgramInfoLog not valid utf8")
+                str::from_utf8(&buf).expect("ProgramInfoLog not valid utf8")
             );
         }
         program
@@ -142,16 +138,18 @@ fn main() {
         gl::BufferData(
             gl::ARRAY_BUFFER,
             (VERTEX_DATA.len() * mem::size_of::<GLfloat>()) as GLsizeiptr,
-            mem::transmute(&VERTEX_DATA[0]),
+            &VERTEX_DATA[0] as *const f32 as *const std::ffi::c_void,
             gl::STATIC_DRAW,
         );
 
         // Use shader program
         gl::UseProgram(program);
-        gl::BindFragDataLocation(program, 0, CString::new("out_color").unwrap().as_ptr());
+        let frag_data_name = CString::new("out_color").unwrap();
+        gl::BindFragDataLocation(program, 0, frag_data_name.as_ptr());
 
         // Specify the layout of the vertex data
-        let pos_attr = gl::GetAttribLocation(program, CString::new("position").unwrap().as_ptr());
+        let pos_attrib_name = CString::new("position").unwrap();
+        let pos_attr = gl::GetAttribLocation(program, pos_attrib_name.as_ptr());
         gl::EnableVertexAttribArray(pos_attr as GLuint);
         gl::VertexAttribPointer(
             pos_attr as GLuint,
@@ -168,9 +166,9 @@ fn main() {
         use glutin::event_loop::ControlFlow;
         *control_flow = ControlFlow::Wait;
         match event {
-            Event::LoopDestroyed => return,
-            Event::WindowEvent { event, .. } => match event {
-                WindowEvent::CloseRequested => {
+            Event::LoopDestroyed => {},
+            Event::WindowEvent { event, .. } => {
+                if let WindowEvent::CloseRequested = event {
                     // Cleanup
                     unsafe {
                         gl::DeleteProgram(program);
@@ -180,8 +178,7 @@ fn main() {
                         gl::DeleteVertexArrays(1, &vao);
                     }
                     *control_flow = ControlFlow::Exit
-                },
-                _ => (),
+                }
             },
             Event::RedrawRequested(_) => {
                 unsafe {

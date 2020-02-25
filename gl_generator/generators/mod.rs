@@ -56,10 +56,7 @@ where
         types_prefix = if enm.ty == "&'static str" { "" } else { types_prefix },
         ty = enm.ty,
         value = enm.value,
-        cast_suffix = match enm.cast {
-            true => format!(" as {}{}", types_prefix, enm.ty),
-            false => String::new(),
-        },
+        cast_suffix = if enm.cast { format!(" as {}{}", types_prefix, enm.ty) } else { String::new() },
     )
 }
 
@@ -98,7 +95,7 @@ pub fn gen_parameters(cmd: &Cmd, with_idents: bool, with_types: bool) -> Vec<Str
             } else if with_types {
                 format!("{}", binding.ty)
             } else if with_idents {
-                format!("{}", binding.ident)
+                binding.ident.to_string()
             } else {
                 panic!()
             }

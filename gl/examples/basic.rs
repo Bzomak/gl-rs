@@ -33,10 +33,11 @@ fn main() {
         use glutin::event_loop::ControlFlow;
         *control_flow = ControlFlow::Wait;
         match event {
-            Event::LoopDestroyed => return,
-            Event::WindowEvent { event, .. } => match event {
-                WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
-                _ => (),
+            Event::LoopDestroyed => {},
+            Event::WindowEvent { event, .. } => {
+                if let WindowEvent::CloseRequested = event {
+                    *control_flow = ControlFlow::Exit
+                }
             },
             Event::RedrawRequested(_) => {
                 unsafe {

@@ -17,7 +17,7 @@ extern crate khronos_api;
 use std::borrow::Cow;
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
-use std::hash::{Hash, Hasher};
+use std::hash::Hash;
 use std::io;
 use std::ops::{Add, AddAssign};
 
@@ -64,7 +64,7 @@ pub enum Profile {
     Compatibility,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Enum {
     pub ident: String,
     pub value: String,
@@ -73,13 +73,7 @@ pub struct Enum {
     pub ty: Cow<'static, str>,
 }
 
-impl Hash for Enum {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.ident.hash(state);
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Binding {
     pub ident: String,
     pub ty: Cow<'static, str>,
@@ -93,7 +87,7 @@ pub struct Group {
     pub enums: Vec<String>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Cmd {
     pub proto: Binding,
     pub params: Vec<Binding>,
@@ -102,13 +96,7 @@ pub struct Cmd {
     pub glx: Option<GlxOpcode>,
 }
 
-impl Hash for Cmd {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.proto.ident.hash(state);
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct GlxOpcode {
     pub opcode: String,
     pub name: Option<String>,

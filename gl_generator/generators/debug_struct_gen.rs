@@ -244,7 +244,7 @@ where
                 .iter()
                 .zip(typed_params.iter())
                 .map(|(name, ty)| if ty.contains("GLDEBUGPROC") {
-                    format!(", \"<callback>\"")
+                    ", \"<callback>\"".to_string()
                 } else {
                     format!(", {}", name)
                 })
@@ -271,10 +271,8 @@ where
                                      registry
                                          .cmds
                                          .iter()
-                                         .find(|cmd| cmd.proto.ident == "GetError")
-                                         .is_some() {
-                          format!(r#"match __gl_imports::mem::transmute::<_, extern "system" fn() -> u32>
-                    (self.GetError.f)() {{ 0 => (), r => println!("[OpenGL] ^ GL error triggered: {{}}", r) }}"#)
+                                         .any(|cmd| cmd.proto.ident == "GetError") {
+                          "match __gl_imports::mem::transmute::<_, extern \"system\" fn() -> u32>\n                    (self.GetError.f)() { 0 => (), r => println!(\"[OpenGL] ^ GL error triggered: {}\", r) }".to_string()
                       } else {
                           format!("")
                       })?
