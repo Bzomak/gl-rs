@@ -23,35 +23,18 @@ impl super::Generator for GlobalGenerator {
     where
         W: io::Write,
     {
-        write_header(dest)?;
+        super::common::write_header(dest, false)?;
         write_metaloadfn(dest)?;
-        write_type_aliases(registry, dest)?;
-        write_enums(registry, dest)?;
+        super::common::write_type_aliases(registry, dest)?;
+        super::common::write_enums(registry, dest)?;
         write_fns(registry, dest)?;
         write_fnptr_struct_def(dest)?;
         write_ptrs(registry, dest)?;
         write_fn_mods(registry, dest)?;
-        write_panicking_fns(registry, dest)?;
+        super::common::write_panicking_fns(registry, dest)?;
         write_load_fn(registry, dest)?;
         Ok(())
     }
-}
-
-/// Creates a `__gl_imports` module which contains all the external symbols that we need for the
-///  bindings.
-fn write_header<W>(dest: &mut W) -> io::Result<()>
-where
-    W: io::Write,
-{
-    writeln!(
-        dest,
-        r#"
-        mod __gl_imports {{
-            pub use std::mem;
-            pub use std::os::raw;
-        }}
-    "#
-    )
 }
 
 /// Creates the metaloadfn function for fallbacks
@@ -77,43 +60,6 @@ where
         }}
     "#
     )
-}
-
-/// Creates a `types` module which contains all the type aliases.
-///
-/// See also `generators::gen_types`.
-fn write_type_aliases<W>(registry: &Registry, dest: &mut W) -> io::Result<()>
-where
-    W: io::Write,
-{
-    writeln!(
-        dest,
-        r#"
-        pub mod types {{
-            #![allow(non_camel_case_types, non_snake_case, dead_code, missing_copy_implementations)]
-    "#
-    )?;
-
-    super::gen_types(registry.api, dest)?;
-
-    writeln!(
-        dest,
-        "
-        }}
-    "
-    )
-}
-
-/// Creates all the `<enum>` elements at the root of the bindings.
-fn write_enums<W>(registry: &Registry, dest: &mut W) -> io::Result<()>
-where
-    W: io::Write,
-{
-    for enm in &registry.enums {
-        super::gen_enum_item(enm, "types::", dest)?;
-    }
-
-    Ok(())
 }
 
 /// Creates the functions corresponding to the GL commands.
@@ -255,24 +201,6 @@ where
     }
 
     Ok(())
-}
-
-/// Creates a `missing_fn_panic` function.
-///
-/// This function is the mock that is called if the real function could not be called.
-fn write_panicking_fns<W>(registry: &Registry, dest: &mut W) -> io::Result<()>
-where
-    W: io::Write,
-{
-    writeln!(
-        dest,
-        "#[inline(never)]
-        fn missing_fn_panic() -> ! {{
-            panic!(\"{api} function was not loaded\")
-        }}
-        ",
-        api = registry.api
-    )
 }
 
 /// Creates the `load_with` function.

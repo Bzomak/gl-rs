@@ -16,6 +16,7 @@ use registry::{Cmd, Enum, Registry};
 use std::io;
 use Api;
 
+mod common;
 pub mod debug_struct_gen;
 pub mod global_gen;
 pub mod static_gen;

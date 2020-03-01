@@ -23,66 +23,12 @@ impl super::Generator for StaticGenerator {
     where
         W: io::Write,
     {
-        write_header(dest)?;
-        write_type_aliases(registry, dest)?;
-        write_enums(registry, dest)?;
+        super::common::write_header(dest, false)?;
+        super::common::write_type_aliases(registry, dest)?;
+        super::common::write_enums(registry, dest)?;
         write_fns(registry, dest)?;
         Ok(())
     }
-}
-
-/// Creates a `__gl_imports` module which contains all the external symbols that we need for the
-///  bindings.
-fn write_header<W>(dest: &mut W) -> io::Result<()>
-where
-    W: io::Write,
-{
-    writeln!(
-        dest,
-        r#"
-        mod __gl_imports {{
-            pub use std::mem;
-            pub use std::os::raw;
-        }}
-    "#
-    )
-}
-
-/// Creates a `types` module which contains all the type aliases.
-///
-/// See also `generators::gen_types`.
-fn write_type_aliases<W>(registry: &Registry, dest: &mut W) -> io::Result<()>
-where
-    W: io::Write,
-{
-    writeln!(
-        dest,
-        r#"
-        pub mod types {{
-            #![allow(non_camel_case_types, non_snake_case, dead_code, missing_copy_implementations)]
-    "#
-    )?;
-
-    super::gen_types(registry.api, dest)?;
-
-    writeln!(
-        dest,
-        "
-        }}
-    "
-    )
-}
-
-/// Creates all the `<enum>` elements at the root of the bindings.
-fn write_enums<W>(registry: &Registry, dest: &mut W) -> io::Result<()>
-where
-    W: io::Write,
-{
-    for enm in &registry.enums {
-        super::gen_enum_item(enm, "types::", dest)?;
-    }
-
-    Ok(())
 }
 
 /// io::Writes all functions corresponding to the GL bindings.
