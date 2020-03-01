@@ -3,6 +3,9 @@ use std::io;
 
 /// Creates a `__gl_imports` module which contains all the external symbols that we need for the
 ///  bindings.
+///
+/// send == true: DebugStructGenerator, StructGenerator
+/// send == false: GlobalGenerator, StaticGenerator, StaticStructGenerator
 pub fn write_header<W>(dest: &mut W, send: bool) -> io::Result<()>
 where
     W: io::Write,
@@ -64,6 +67,9 @@ where
 }
 
 /// Creates a `FnPtr` structure which contains the store for a single binding.
+///
+/// global == true: GlobalGenerator
+/// global == false: DebugStructGenerator, StructGenerator
 pub fn write_fnptr_struct_def<W>(dest: &mut W, global: bool) -> io::Result<()>
 where
     W: io::Write,
@@ -133,6 +139,8 @@ where
 /// Creates a `panicking` module which contains one function per GL command.
 ///
 /// These functions are the mocks that are called if the real function could not be loaded.
+///
+/// Used by DebugStructGenerator, GlobalGenerator, StructGenerator
 pub fn write_panicking_fns<W>(registry: &Registry, dest: &mut W) -> io::Result<()>
 where
     W: io::Write,
@@ -151,6 +159,9 @@ where
 /// if stat == false creates a structure which stores all the `FnPtr` of the bindings.
 ///
 /// The name of the struct corresponds to the namespace.
+///
+/// stat == true: StaticStructGenerator
+/// stat == false: DebugStructGenerator, StructGenerator
 pub fn write_struct<W>(registry: &Registry, dest: &mut W, stat: bool) -> io::Result<()>
 where
     W: io::Write,
