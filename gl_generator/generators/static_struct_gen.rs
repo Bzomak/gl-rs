@@ -26,28 +26,11 @@ impl super::Generator for StaticStructGenerator {
         super::common::write_header(dest, false)?;
         super::common::write_type_aliases(registry, dest)?;
         super::common::write_enums(registry, dest)?;
-        write_struct(registry, dest)?;
+        super::common::write_struct(registry, dest, true)?;
         write_impl(registry, dest)?;
         write_fns(registry, dest)?;
         Ok(())
     }
-}
-
-/// Creates a stub structure.
-///
-/// The name of the struct corresponds to the namespace.
-fn write_struct<W>(registry: &Registry, dest: &mut W) -> io::Result<()>
-where
-    W: io::Write,
-{
-    writeln!(
-        dest,
-        "
-        #[allow(non_camel_case_types, non_snake_case, dead_code)]
-        #[derive(Copy, Clone)]
-        pub struct {api};",
-        api = super::gen_struct_name(registry.api),
-    )
 }
 
 /// Creates the `impl` of the structure created by `write_struct`.

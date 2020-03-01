@@ -63,6 +63,73 @@ where
     Ok(())
 }
 
+/// Creates a `FnPtr` structure which contains the store for a single binding.
+pub fn write_fnptr_struct_def<W>(dest: &mut W, global: bool) -> io::Result<()>
+where
+    W: io::Write,
+{
+    if global {
+        writeln!(dest,
+            "
+       #[allow(missing_copy_implementations)]
+       pub struct FnPtr {{
+           /// The function pointer that will be used when calling the function.
+           f: *const __gl_imports::raw::c_void,
+           /// True if the pointer points to a real function, false if points to a `panic!` fn.
+           is_loaded: bool,
+       }}
+
+       impl FnPtr {{
+           /// Creates a `FnPtr` from a load attempt.
+           pub fn new(ptr: *const __gl_imports::raw::c_void) -> FnPtr {{
+               if ptr.is_null() {{
+                   FnPtr {{ f: missing_fn_panic as *const __gl_imports::raw::c_void, is_loaded: false }}
+               }} else {{
+                   FnPtr {{ f: ptr, is_loaded: true }}
+               }}
+           }}
+       }}
+   ")
+    } else {
+        writeln!(
+            dest,
+            "
+        #[allow(dead_code, missing_copy_implementations)]
+        #[derive(Clone)]
+        pub struct FnPtr {{
+            /// The function pointer that will be used when calling the function.
+            f: *const __gl_imports::raw::c_void,
+            /// True if the pointer points to a real function, false if points to a `panic!` fn.
+            is_loaded: bool,
+        }}
+
+        impl FnPtr {{
+            /// Creates a `FnPtr` from a load attempt.
+            fn new(ptr: *const __gl_imports::raw::c_void) -> FnPtr {{
+                if ptr.is_null() {{
+                    FnPtr {{
+                        f: missing_fn_panic as *const __gl_imports::raw::c_void,
+                        is_loaded: false
+                    }}
+                }} else {{
+                    FnPtr {{ f: ptr, is_loaded: true }}
+                }}
+            }}
+
+            /// Returns `true` if the function has been successfully loaded.
+            ///
+            /// If it returns `false`, calling the corresponding function will fail.
+            #[inline]
+            #[allow(dead_code)]
+            pub fn is_loaded(&self) -> bool {{
+                self.is_loaded
+            }}
+        }}
+    "
+        )
+    }
+}
+
 /// Creates a `panicking` module which contains one function per GL command.
 ///
 /// These functions are the mocks that are called if the real function could not be loaded.
@@ -78,4 +145,43 @@ where
         }}",
         api = registry.api
     )
+}
+
+/// If stat == true creates a stub structure.
+/// if stat == false creates a structure which stores all the `FnPtr` of the bindings.
+///
+/// The name of the struct corresponds to the namespace.
+pub fn write_struct<W>(registry: &Registry, dest: &mut W, stat: bool) -> io::Result<()>
+where
+    W: io::Write,
+{
+    if stat {
+        writeln!(
+            dest,
+            "
+            #[allow(non_camel_case_types, non_snake_case, dead_code)]
+            #[derive(Copy, Clone)]
+            pub struct {api};",
+            api = super::gen_struct_name(registry.api),
+        )
+    } else {
+        writeln!(
+            dest,
+            "
+        #[allow(non_camel_case_types, non_snake_case, dead_code)]
+        #[derive(Clone)]
+        pub struct {api} {{",
+            api = super::gen_struct_name(registry.api)
+        )?;
+
+        for cmd in &registry.cmds {
+            if let Some(v) = registry.aliases.get(&cmd.proto.ident) {
+                writeln!(dest, "/// Fallbacks: {}", v.join(", "))?;
+            }
+            writeln!(dest, "pub {name}: FnPtr,", name = cmd.proto.ident)?;
+        }
+        writeln!(dest, "_priv: ()")?;
+
+        writeln!(dest, "}}")
+    }
 }

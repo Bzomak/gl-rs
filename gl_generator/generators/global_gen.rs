@@ -28,7 +28,7 @@ impl super::Generator for GlobalGenerator {
         super::common::write_type_aliases(registry, dest)?;
         super::common::write_enums(registry, dest)?;
         write_fns(registry, dest)?;
-        write_fnptr_struct_def(dest)?;
+        super::common::write_fnptr_struct_def(dest, true)?;
         write_ptrs(registry, dest)?;
         write_fn_mods(registry, dest)?;
         super::common::write_panicking_fns(registry, dest)?;
@@ -90,34 +90,6 @@ where
     }
 
     Ok(())
-}
-
-/// Creates a `FnPtr` structure which contains the store for a single binding.
-fn write_fnptr_struct_def<W>(dest: &mut W) -> io::Result<()>
-where
-    W: io::Write,
-{
-    writeln!(dest,
-             "
-        #[allow(missing_copy_implementations)]
-        pub struct FnPtr {{
-            /// The function pointer that will be used when calling the function.
-            f: *const __gl_imports::raw::c_void,
-            /// True if the pointer points to a real function, false if points to a `panic!` fn.
-            is_loaded: bool,
-        }}
-
-        impl FnPtr {{
-            /// Creates a `FnPtr` from a load attempt.
-            pub fn new(ptr: *const __gl_imports::raw::c_void) -> FnPtr {{
-                if ptr.is_null() {{
-                    FnPtr {{ f: missing_fn_panic as *const __gl_imports::raw::c_void, is_loaded: false }}
-                }} else {{
-                    FnPtr {{ f: ptr, is_loaded: true }}
-                }}
-            }}
-        }}
-    ")
 }
 
 /// Creates a `storage` module which contains a static `FnPtr` per GL command in the registry.
