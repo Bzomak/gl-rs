@@ -10,28 +10,21 @@ pub fn write_header<W>(dest: &mut W, send: bool) -> io::Result<()>
 where
     W: io::Write,
 {
-    if send {
-        writeln!(
-            dest,
-            r#"
-        mod __gl_imports {{
-            pub use std::marker::Send;
+    writeln!(
+        dest,
+        "
+        mod __gl_imports {{{send}
             pub use std::mem;
             pub use std::os::raw;
         }}
-    "#
-        )
-    } else {
-        writeln!(
-            dest,
-            r#"
-        mod __gl_imports {{
-            pub use std::mem;
-            pub use std::os::raw;
-        }}
-    "#
-        )
-    }
+        ",
+        send = if send {
+            "
+            pub use std::marker::Send;"
+        } else {
+            ""
+        }
+    )
 }
 
 /// Creates a `types` module which contains all the type aliases.
@@ -74,34 +67,9 @@ pub fn write_fnptr_struct_def<W>(dest: &mut W, global: bool) -> io::Result<()>
 where
     W: io::Write,
 {
-    if global {
-        writeln!(dest,
-            "
-       #[allow(missing_copy_implementations)]
-       pub struct FnPtr {{
-           /// The function pointer that will be used when calling the function.
-           f: *const __gl_imports::raw::c_void,
-           /// True if the pointer points to a real function, false if points to a `panic!` fn.
-           is_loaded: bool,
-       }}
-
-       impl FnPtr {{
-           /// Creates a `FnPtr` from a load attempt.
-           pub fn new(ptr: *const __gl_imports::raw::c_void) -> FnPtr {{
-               if ptr.is_null() {{
-                   FnPtr {{ f: missing_fn_panic as *const __gl_imports::raw::c_void, is_loaded: false }}
-               }} else {{
-                   FnPtr {{ f: ptr, is_loaded: true }}
-               }}
-           }}
-       }}
-   ")
-    } else {
-        writeln!(
-            dest,
-            "
-        #[allow(dead_code, missing_copy_implementations)]
-        #[derive(Clone)]
+    writeln!(dest,
+        "
+        #[allow({dead_code}missing_copy_implementations)]{clone}
         pub struct FnPtr {{
             /// The function pointer that will be used when calling the function.
             f: *const __gl_imports::raw::c_void,
@@ -111,7 +79,7 @@ where
 
         impl FnPtr {{
             /// Creates a `FnPtr` from a load attempt.
-            fn new(ptr: *const __gl_imports::raw::c_void) -> FnPtr {{
+            {pub}fn new(ptr: *const __gl_imports::raw::c_void) -> FnPtr {{
                 if ptr.is_null() {{
                     FnPtr {{
                         f: missing_fn_panic as *const __gl_imports::raw::c_void,
@@ -120,20 +88,40 @@ where
                 }} else {{
                     FnPtr {{ f: ptr, is_loaded: true }}
                 }}
-            }}
+            }}{is_loaded_fn}
+        }}
+        ",
+        dead_code = if global {
+            ""
+        } else {
+            "dead_code, "
+        },
+        clone = if global {
+            ""
+        } else {
+            "
+        #[derive(Clone)]"
+        },
+        pub = if global {
+            "pub "
+        } else {
+            ""
+        },
+        is_loaded_fn = if global {
+            ""
+        } else {
+            "
 
             /// Returns `true` if the function has been successfully loaded.
             ///
             /// If it returns `false`, calling the corresponding function will fail.
             #[inline]
             #[allow(dead_code)]
-            pub fn is_loaded(&self) -> bool {{
+            pub fn is_loaded(&self) -> bool {
                 self.is_loaded
-            }}
-        }}
-    "
-        )
-    }
+            }"
+        },
+    )
 }
 
 /// Creates a `panicking` module which contains one function per GL command.
