@@ -15,7 +15,6 @@
 #![allow(unused_parens, non_camel_case_types)]
 #![crate_name = "webgl_stdweb"]
 #![crate_type = "lib"]
-#![allow(bad_style)]
 #![allow(clippy::unreadable_literal)]
 #![allow(clippy::missing_safety_doc)]
 #![allow(clippy::too_many_arguments)]

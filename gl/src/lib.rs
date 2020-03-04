@@ -74,7 +74,6 @@
 
 #![crate_name = "gl"]
 #![crate_type = "lib"]
-#![allow(bad_style)]
 #![allow(clippy::unreadable_literal)]
 #![allow(clippy::missing_safety_doc)]
 #![allow(clippy::too_many_arguments)]

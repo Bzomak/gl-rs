@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #![allow(unused_parens, non_camel_case_types)]
-#![allow(bad_style)]
 #![allow(clippy::unreadable_literal)]
 #![allow(clippy::missing_safety_doc)]
 #![allow(clippy::too_many_arguments)]
@@ -30,7 +29,6 @@ extern crate stdweb;
 extern crate stdweb_derive;
 
 mod webgl {
-    #![allow(bad_style)]
     #![allow(clippy::unreadable_literal)]
     #![allow(clippy::missing_safety_doc)]
     #![allow(clippy::too_many_arguments)]
@@ -42,7 +40,6 @@ mod webgl {
 }
 
 mod webgl2 {
-    #![allow(bad_style)]
     #![allow(clippy::unreadable_literal)]
     #![allow(clippy::missing_safety_doc)]
     #![allow(clippy::too_many_arguments)]
