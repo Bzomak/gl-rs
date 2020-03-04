@@ -74,17 +74,21 @@ where
         if let Some(v) = registry.aliases.get(&cmd.proto.ident) {
             writeln!(dest, "/// Fallbacks: {}", v.join(", "))?;
         }
-
-        writeln!(dest,
+        writeln!(
+            dest,
             "#[allow(non_snake_case, unused_variables, dead_code)] #[inline]
-            pub unsafe fn {name}({params}) -> {return_suffix} {{ \
-                __gl_imports::mem::transmute::<_, extern \"system\" fn({typed_params}) -> {return_suffix}>\
+            pub unsafe fn {name}({params}){return_suffix} {{ \
+                __gl_imports::mem::transmute::<_, extern \"system\" fn({typed_params}){return_suffix}>\
                     (storage::{name}.f)({idents}) \
             }}",
             name = cmd.proto.ident,
             params = super::gen_parameters(cmd, true, true).join(", "),
             typed_params = super::gen_parameters(cmd, false, true).join(", "),
-            return_suffix = cmd.proto.ty,
+            return_suffix = if cmd.proto.ty.clone() == "()" {
+                String::new()
+            } else {
+                format!("-> {}", cmd.proto.ty)
+            },
             idents = super::gen_parameters(cmd, true, false).join(", "),
         )?;
     }
@@ -182,7 +186,8 @@ fn write_load_fn<W>(registry: &Registry, dest: &mut W) -> io::Result<()>
 where
     W: io::Write,
 {
-    writeln!(dest,
+    writeln!(
+        dest,
                   "
         /// Load each OpenGL symbol using a custom load function. This allows for the
         /// use of functions like `glfwGetProcAddress` or `SDL_GL_GetProcAddress`.
@@ -193,7 +198,8 @@ where
         pub fn load_with<F>(mut loadfn: F) where F: FnMut(&'static str) -> *const __gl_imports::raw::c_void {{
             #[inline(never)]
             fn inner(loadfn: &mut dyn FnMut(&'static str) -> *const __gl_imports::raw::c_void) {{
-    ")?;
+    "
+    )?;
 
     for c in &registry.cmds {
         writeln!(

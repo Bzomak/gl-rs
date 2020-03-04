@@ -39,7 +39,8 @@ fn write_impl<W>(registry: &Registry, dest: &mut W) -> io::Result<()>
 where
     W: io::Write,
 {
-    writeln!(dest,
+    writeln!(
+        dest,
                   "impl {api} {{
             /// Load each OpenGL symbol using a custom load function. This allows for the
             /// use of functions like `glfwGetProcAddress` or `SDL_GL_GetProcAddress`.
@@ -67,7 +68,8 @@ where
                     do_metaloadfn(&mut loadfn, symbol, symbols)
                 }};
                 {api} {{",
-                  api = super::gen_struct_name(registry.api))?;
+        api = super::gen_struct_name(registry.api)
+    )?;
 
     for cmd in &registry.cmds {
         writeln!(
@@ -115,30 +117,36 @@ where
                 .concat()
         );
 
-        writeln!(dest,
+        writeln!(
+            dest,
                       "#[allow(non_snake_case, unused_variables, dead_code)]
-            #[inline] pub unsafe fn {name}(&self, {params}) -> {return_suffix} {{ \
+            #[inline] pub unsafe fn {name}(&self, {params}){return_suffix} {{ \
                 {println}
-                let r = __gl_imports::mem::transmute::<_, extern \"system\" fn({typed_params}) -> {return_suffix}>\
+                let r = __gl_imports::mem::transmute::<_, extern \"system\" fn({typed_params}){return_suffix}>\
                     (self.{name}.f)({idents});
                 {print_err}
                 r
             }}",
-                      name = cmd.proto.ident,
-                      params = super::gen_parameters(cmd, true, true).join(", "),
-                      typed_params = typed_params.join(", "),
-                      return_suffix = cmd.proto.ty,
-                      idents = idents.join(", "),
-                      println = println,
-                      print_err = if cmd.proto.ident != "GetError" &&
+            name = cmd.proto.ident,
+            params = super::gen_parameters(cmd, true, true).join(", "),
+            typed_params = typed_params.join(", "),
+            return_suffix = if cmd.proto.ty.clone() == "()" {
+                String::new()
+            } else {
+                format!("-> {}", cmd.proto.ty)
+            },
+            idents = idents.join(", "),
+            println = println,
+            print_err = if cmd.proto.ident != "GetError" &&
                                      registry
                                          .cmds
                                          .iter()
                                          .any(|cmd| cmd.proto.ident == "GetError") {
                           "match __gl_imports::mem::transmute::<_, extern \"system\" fn() -> u32>\n                    (self.GetError.f)() { 0 => (), r => println!(\"[OpenGL] ^ GL error triggered: {}\", r) }".to_string()
-                      } else {
-                          format!("")
-                      })?
+            } else {
+                format!("")
+            }
+        )?
     }
 
     writeln!(

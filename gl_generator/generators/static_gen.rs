@@ -49,11 +49,15 @@ where
         writeln!(
             dest,
             "#[link_name=\"{symbol}\"]
-            pub fn {name}({params}) -> {return_suffix};",
+            pub fn {name}({params}){return_suffix};",
             symbol = super::gen_symbol_name(registry.api, &cmd.proto.ident),
             name = cmd.proto.ident,
             params = super::gen_parameters(cmd, true, true).join(", "),
-            return_suffix = cmd.proto.ty,
+            return_suffix = if cmd.proto.ty.clone() == "()" {
+                String::new()
+            } else {
+                format!("-> {}", cmd.proto.ty)
+            },
         )?;
     }
 

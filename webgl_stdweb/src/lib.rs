@@ -20,7 +20,6 @@
 #![allow(clippy::too_many_arguments)]
 #![allow(clippy::let_unit_value)]
 #![allow(clippy::let_and_return)]
-#![allow(clippy::unused_unit)]
 #![allow(clippy::redundant_static_lifetimes)]
 #![allow(clippy::trivially_copy_pass_by_ref)]
 #![allow(clippy::tabs_in_doc_comments)]

@@ -38,7 +38,8 @@ fn write_impl<W>(registry: &Registry, dest: &mut W) -> io::Result<()>
 where
     W: io::Write,
 {
-    writeln!(dest,
+    writeln!(
+        dest,
         "impl {api} {{
             /// Stub function.
             #[allow(dead_code)]
@@ -55,12 +56,16 @@ where
             // #[allow(unused_variables)]
             #[allow(dead_code)]
             #[inline]
-            pub unsafe fn {name}(&self, {typed_params}) -> {return_suffix} {{
+            pub unsafe fn {name}(&self, {typed_params}){return_suffix} {{
                 {name}({idents})
             }}",
             name = cmd.proto.ident,
             typed_params = super::gen_parameters(cmd, true, true).join(", "),
-            return_suffix = cmd.proto.ty,
+            return_suffix = if cmd.proto.ty.clone() == "()" {
+                String::new()
+            } else {
+                format!("-> {}", cmd.proto.ty)
+            },
             idents = super::gen_parameters(cmd, true, false).join(", "),
         )?;
     }
@@ -87,11 +92,15 @@ where
     for cmd in &registry.cmds {
         writeln!(
             dest,
-            "#[link_name=\"{symbol}\"] fn {name}({params}) -> {return_suffix};",
+            "#[link_name=\"{symbol}\"] fn {name}({params}){return_suffix};",
             symbol = super::gen_symbol_name(registry.api, &cmd.proto.ident),
             name = cmd.proto.ident,
             params = super::gen_parameters(cmd, true, true).join(", "),
-            return_suffix = cmd.proto.ty,
+            return_suffix = if cmd.proto.ty.clone() == "()" {
+                String::new()
+            } else {
+                format!("-> {}", cmd.proto.ty)
+            },
         )?;
     }
 
