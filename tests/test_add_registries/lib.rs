@@ -16,7 +16,6 @@
 #![allow(clippy::missing_safety_doc)]
 #![allow(clippy::too_many_arguments)]
 #![allow(clippy::let_unit_value)]
-#![allow(clippy::let_and_return)]
 
 pub mod gl {
     include!(concat!(env!("OUT_DIR"), "/test_add_registries.rs"));

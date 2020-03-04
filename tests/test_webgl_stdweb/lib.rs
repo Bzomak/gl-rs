@@ -17,7 +17,6 @@
 #![allow(clippy::missing_safety_doc)]
 #![allow(clippy::too_many_arguments)]
 #![allow(clippy::let_unit_value)]
-#![allow(clippy::let_and_return)]
 #![allow(clippy::tabs_in_doc_comments)]
 
 #[macro_use]
@@ -32,7 +31,6 @@ mod webgl {
     #![allow(clippy::missing_safety_doc)]
     #![allow(clippy::too_many_arguments)]
     #![allow(clippy::let_unit_value)]
-    #![allow(clippy::let_and_return)]
     #![allow(clippy::tabs_in_doc_comments)]
     include!(concat!(env!("OUT_DIR"), "/test_webgl_stdweb.rs"));
 }
@@ -42,7 +40,6 @@ mod webgl2 {
     #![allow(clippy::missing_safety_doc)]
     #![allow(clippy::too_many_arguments)]
     #![allow(clippy::let_unit_value)]
-    #![allow(clippy::let_and_return)]
     #![allow(clippy::tabs_in_doc_comments)]
     include!(concat!(env!("OUT_DIR"), "/test_webgl2_stdweb.rs"));
 }
