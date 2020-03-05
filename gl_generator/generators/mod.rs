@@ -55,7 +55,7 @@ where
         "#[allow(dead_code, non_upper_case_globals)] pub const {ident}: {types_prefix}{ty} = {value}{cast_suffix};",
         ident = enm.ident,
         types_prefix = if enm.ty == "&'static str" { "" } else { types_prefix },
-        ty = enm.ty,
+        ty = if enm.ty == "&'static str" { "&str" } else { &*enm.ty },
         value = enm.value,
         cast_suffix = if enm.cast { format!(" as {}{}", types_prefix, enm.ty) } else { String::new() },
     )
