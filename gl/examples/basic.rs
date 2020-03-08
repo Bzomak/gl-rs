@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use gl;
-use glutin;
-
 fn main() {
     let event_loop = glutin::event_loop::EventLoop::new();
     let window = glutin::window::WindowBuilder::new();
