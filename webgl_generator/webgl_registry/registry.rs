@@ -56,7 +56,7 @@ impl<'a, T: 'a, F: FnMut(&'a NamedType) -> Option<&'a T>> Iterator for TypeIter<
 impl Registry {
     /// Construct a new registry given a maximum API version
     /// and a set of extensions to support.
-    pub fn new(api: Api, exts: Exts) -> Registry {
+    pub fn new(api: Api, exts: Exts<'_>) -> Registry {
         let mut result = Registry::default();
 
         // First load definitions from all API versions

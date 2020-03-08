@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-extern crate gl_generator;
-
 use gl_generator::generators;
 
 fn main() {

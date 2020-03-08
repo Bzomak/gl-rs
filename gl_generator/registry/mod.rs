@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-extern crate khronos_api;
+use khronos_api;
 
 use std::borrow::Cow;
 use std::collections::{BTreeMap, BTreeSet};
@@ -38,7 +38,7 @@ pub enum Api {
 }
 
 impl fmt::Display for Api {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
             Api::Gl => write!(fmt, "gl"),
             Api::Glx => write!(fmt, "glx"),

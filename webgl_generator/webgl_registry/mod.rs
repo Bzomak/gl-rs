@@ -127,7 +127,7 @@ impl Api {
 }
 
 impl fmt::Display for Api {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
             Api::WebGl => write!(fmt, "webgl"),
             Api::WebGl2 => write!(fmt, "webgl2"),

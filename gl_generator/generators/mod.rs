@@ -13,8 +13,8 @@
 // limitations under the License.
 
 use crate::registry::{Cmd, Enum, Registry};
-use std::io;
 use crate::Api;
+use std::io;
 
 mod common;
 pub mod debug_struct_gen;

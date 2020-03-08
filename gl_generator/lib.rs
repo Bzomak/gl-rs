@@ -64,7 +64,6 @@
 
 #[macro_use]
 extern crate log;
-extern crate xml;
 
 #[cfg(feature = "unstable_generator_utils")]
 pub mod generators;

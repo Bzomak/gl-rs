@@ -16,12 +16,6 @@
 //! used to generate all constants and functions of a given WebGL version.
 //!
 //! See the `webgl` crate for an example of use.
-extern crate heck;
-extern crate html2runes;
-extern crate khronos_api;
-extern crate regex;
-extern crate webidl;
-extern crate xml;
 
 mod utils;
 mod webgl_generators;
