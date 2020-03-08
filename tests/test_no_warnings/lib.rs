@@ -17,7 +17,6 @@
 #![allow(clippy::unreadable_literal)]
 #![allow(clippy::missing_safety_doc)]
 #![allow(clippy::too_many_arguments)]
-#![allow(clippy::let_unit_value)]
 #![allow(clippy::trivially_copy_pass_by_ref)]
 
 include!(concat!(env!("OUT_DIR"), "/test_no_warnings.rs"));

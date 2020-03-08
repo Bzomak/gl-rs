@@ -116,6 +116,7 @@ where
                 .collect::<Vec<_>>()
                 .concat()
         );
+        let no_return_value = cmd.proto.ty.clone() == "()";
         let print_err = if cmd.proto.ident != "GetError"
             && registry
                 .cmds
@@ -123,40 +124,46 @@ where
                 .any(|cmd| cmd.proto.ident == "GetError")
         {
             ";
-                    match __gl_imports::mem::transmute::<_, extern \"system\" fn() -> u32>(self.GetError.f)() {
-                        0 => (),
-                        r => println!(\"[OpenGL] ^ GL error triggered: {}\", r)
-                    }
-                    r".to_string()
+                match __gl_imports::mem::transmute::<_, extern \"system\" fn() -> u32>(self.GetError.f)() {
+                    0 => (),
+                    r => println!(\"[OpenGL] ^ GL error triggered: {}\", r)
+                }".to_string()
         } else {
             String::new()
         };
 
         writeln!(
-               dest,
-                         "#[allow(non_snake_case, unused_variables, dead_code)]
-                #[inline] pub unsafe fn {name}(&self, {params}) {return_suffix} {{
-                    {println}
-                    {let_r}__gl_imports::mem::transmute::<_, extern \"system\" fn({typed_params}) {return_suffix}>\
-                    (self.{name}.f)({idents}){print_err}
-                }}",
-               name = cmd.proto.ident,
-               params = super::gen_parameters(cmd, true, true).join(", "),
-               typed_params = typed_params.join(", "),
-               return_suffix = if cmd.proto.ty.clone() == "()" {
-                   String::new()
-               } else {
-                   format!("-> {}", cmd.proto.ty)
-               },
-               idents = idents.join(", "),
-               println = println,
-               print_err = print_err,
-               let_r = if print_err.is_empty() {
-                   String::new()
-               } else {
-                   "let r = ".to_string()
-               }
-           )?
+            dest,
+            "
+            #[allow(non_snake_case, unused_variables, dead_code)]
+            #[inline] pub unsafe fn {name}(&self, {params}) {return_suffix} {{
+                {println}
+                {let_r}__gl_imports::mem::transmute::<_, extern \"system\" fn({typed_params}) {return_suffix}>\
+                (self.{name}.f)({idents}){print_err}{return_r}
+            }}",
+            name = cmd.proto.ident,
+            params = super::gen_parameters(cmd, true, true).join(", "),
+            typed_params = typed_params.join(", "),
+            return_suffix = if no_return_value {
+                String::new()
+            } else {
+                format!("-> {}", cmd.proto.ty)
+            },
+            idents = idents.join(", "),
+            println = println,
+            print_err = print_err,
+            let_r = if !no_return_value && !print_err.is_empty() {
+                "let r = ".to_string()
+            } else {
+                String::new()
+            },
+            return_r = if !no_return_value && !print_err.is_empty() {
+                "
+                r".to_string()
+            } else {
+                String::new()
+            },
+        )?
     }
 
     writeln!(

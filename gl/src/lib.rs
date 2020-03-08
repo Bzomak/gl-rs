@@ -77,6 +77,5 @@
 #![allow(clippy::unreadable_literal)]
 #![allow(clippy::missing_safety_doc)]
 #![allow(clippy::too_many_arguments)]
-#![allow(clippy::let_unit_value)]
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
