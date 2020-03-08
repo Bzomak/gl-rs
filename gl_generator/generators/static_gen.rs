@@ -19,10 +19,7 @@ use std::io;
 pub struct StaticGenerator;
 
 impl super::Generator for StaticGenerator {
-    fn write<W>(&self, registry: &Registry, dest: &mut W) -> io::Result<()>
-    where
-        W: io::Write,
-    {
+    fn write(&self, registry: &Registry, dest: &mut dyn io::Write) -> io::Result<()> {
         super::common::write_header(dest, false)?;
         super::common::write_type_aliases(registry, dest)?;
         super::common::write_enums(registry, dest)?;
@@ -34,10 +31,7 @@ impl super::Generator for StaticGenerator {
 /// io::Writes all functions corresponding to the GL bindings.
 ///
 /// These are foreign functions, they don't have any content.
-fn write_fns<W>(registry: &Registry, dest: &mut W) -> io::Result<()>
-where
-    W: io::Write,
-{
+fn write_fns(registry: &Registry, dest: &mut dyn io::Write) -> io::Result<()> {
     writeln!(
         dest,
         "

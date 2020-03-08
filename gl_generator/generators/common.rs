@@ -6,10 +6,7 @@ use std::io;
 ///
 /// send == true: DebugStructGenerator, StructGenerator
 /// send == false: GlobalGenerator, StaticGenerator, StaticStructGenerator
-pub fn write_header<W>(dest: &mut W, send: bool) -> io::Result<()>
-where
-    W: io::Write,
-{
+pub fn write_header(dest: &mut dyn io::Write, send: bool) -> io::Result<()> {
     writeln!(
         dest,
         "
@@ -30,10 +27,7 @@ where
 /// Creates a `types` module which contains all the type aliases.
 ///
 /// See also `generators::gen_types`.
-pub fn write_type_aliases<W>(registry: &Registry, dest: &mut W) -> io::Result<()>
-where
-    W: io::Write,
-{
+pub fn write_type_aliases(registry: &Registry, dest: &mut dyn io::Write) -> io::Result<()> {
     writeln!(
         dest,
         r#"
@@ -48,10 +42,7 @@ where
 }
 
 /// Creates all the `<enum>` elements at the root of the bindings.
-pub fn write_enums<W>(registry: &Registry, dest: &mut W) -> io::Result<()>
-where
-    W: io::Write,
-{
+pub fn write_enums(registry: &Registry, dest: &mut dyn io::Write) -> io::Result<()> {
     for enm in &registry.enums {
         super::gen_enum_item(enm, "types::", dest)?;
     }
@@ -63,10 +54,7 @@ where
 ///
 /// global == true: GlobalGenerator
 /// global == false: DebugStructGenerator, StructGenerator
-pub fn write_fnptr_struct_def<W>(dest: &mut W, global: bool) -> io::Result<()>
-where
-    W: io::Write,
-{
+pub fn write_fnptr_struct_def(dest: &mut dyn io::Write, global: bool) -> io::Result<()> {
     writeln!(dest,
         "
         #[allow({dead_code}missing_copy_implementations)]{clone}
@@ -129,10 +117,7 @@ where
 /// These functions are the mocks that are called if the real function could not be loaded.
 ///
 /// Used by DebugStructGenerator, GlobalGenerator, StructGenerator
-pub fn write_panicking_fns<W>(registry: &Registry, dest: &mut W) -> io::Result<()>
-where
-    W: io::Write,
-{
+pub fn write_panicking_fns(registry: &Registry, dest: &mut dyn io::Write) -> io::Result<()> {
     writeln!(
         dest,
         "#[inline(never)]
@@ -150,10 +135,7 @@ where
 ///
 /// stat == true: StaticStructGenerator
 /// stat == false: DebugStructGenerator, StructGenerator
-pub fn write_struct<W>(registry: &Registry, dest: &mut W, stat: bool) -> io::Result<()>
-where
-    W: io::Write,
-{
+pub fn write_struct(registry: &Registry, dest: &mut dyn io::Write, stat: bool) -> io::Result<()> {
     if stat {
         writeln!(
             dest,

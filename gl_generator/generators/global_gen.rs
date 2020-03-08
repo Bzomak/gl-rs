@@ -19,10 +19,7 @@ use std::io;
 pub struct GlobalGenerator;
 
 impl super::Generator for GlobalGenerator {
-    fn write<W>(&self, registry: &Registry, dest: &mut W) -> io::Result<()>
-    where
-        W: io::Write,
-    {
+    fn write(&self, registry: &Registry, dest: &mut dyn io::Write) -> io::Result<()> {
         super::common::write_header(dest, false)?;
         write_metaloadfn(dest)?;
         super::common::write_type_aliases(registry, dest)?;
@@ -38,10 +35,7 @@ impl super::Generator for GlobalGenerator {
 }
 
 /// Creates the metaloadfn function for fallbacks
-fn write_metaloadfn<W>(dest: &mut W) -> io::Result<()>
-where
-    W: io::Write,
-{
+fn write_metaloadfn(dest: &mut dyn io::Write) -> io::Result<()> {
     writeln!(
         dest,
         r#"
@@ -66,10 +60,7 @@ where
 ///
 /// The function calls the corresponding function pointer stored in the `storage` module created
 ///  by `write_ptrs`.
-fn write_fns<W>(registry: &Registry, dest: &mut W) -> io::Result<()>
-where
-    W: io::Write,
-{
+fn write_fns(registry: &Registry, dest: &mut dyn io::Write) -> io::Result<()> {
     for cmd in &registry.cmds {
         if let Some(v) = registry.aliases.get(&cmd.proto.ident) {
             writeln!(dest, "/// Fallbacks: {}", v.join(", "))?;
@@ -97,10 +88,7 @@ where
 }
 
 /// Creates a `storage` module which contains a static `FnPtr` per GL command in the registry.
-fn write_ptrs<W>(registry: &Registry, dest: &mut W) -> io::Result<()>
-where
-    W: io::Write,
-{
+fn write_ptrs(registry: &Registry, dest: &mut dyn io::Write) -> io::Result<()> {
     writeln!(
         dest,
         "mod storage {{
@@ -128,10 +116,7 @@ where
 ///
 /// Each module contains `is_loaded` and `load_with` which interact with the `storage` module
 ///  created by `write_ptrs`.
-fn write_fn_mods<W>(registry: &Registry, dest: &mut W) -> io::Result<()>
-where
-    W: io::Write,
-{
+fn write_fn_mods(registry: &Registry, dest: &mut dyn io::Write) -> io::Result<()> {
     for c in &registry.cmds {
         let fallbacks = match registry.aliases.get(&c.proto.ident) {
             Some(v) => {
@@ -182,10 +167,7 @@ where
 /// Creates the `load_with` function.
 ///
 /// The function calls `load_with` in each module created by `write_fn_mods`.
-fn write_load_fn<W>(registry: &Registry, dest: &mut W) -> io::Result<()>
-where
-    W: io::Write,
-{
+fn write_load_fn(registry: &Registry, dest: &mut dyn io::Write) -> io::Result<()> {
     writeln!(
         dest,
                   "

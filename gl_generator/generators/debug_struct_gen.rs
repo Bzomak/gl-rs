@@ -19,10 +19,7 @@ use std::io;
 pub struct DebugStructGenerator;
 
 impl super::Generator for DebugStructGenerator {
-    fn write<W>(&self, registry: &Registry, dest: &mut W) -> io::Result<()>
-    where
-        W: io::Write,
-    {
+    fn write(&self, registry: &Registry, dest: &mut dyn io::Write) -> io::Result<()> {
         super::common::write_header(dest, true)?;
         super::common::write_type_aliases(registry, dest)?;
         super::common::write_enums(registry, dest)?;
@@ -35,10 +32,7 @@ impl super::Generator for DebugStructGenerator {
 }
 
 /// Creates the `impl` of the structure created by `write_struct`.
-fn write_impl<W>(registry: &Registry, dest: &mut W) -> io::Result<()>
-where
-    W: io::Write,
-{
+fn write_impl(registry: &Registry, dest: &mut dyn io::Write) -> io::Result<()> {
     writeln!(
         dest,
                   "impl {api} {{
