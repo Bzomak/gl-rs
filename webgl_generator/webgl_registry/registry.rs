@@ -18,8 +18,8 @@ use std::io;
 
 use webidl::ast;
 
-use utils::{multimap_insert, parse_defs};
-use webgl_generators::Generator;
+use crate::utils::{multimap_insert, parse_defs};
+use crate::webgl_generators::Generator;
 
 use super::named::{
     Argument, Attribute, Callback, Const, Dictionary, Enum, Field, Interface, Member, Mixin,

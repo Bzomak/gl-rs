@@ -15,8 +15,8 @@
 use std::collections::BTreeSet;
 use std::io;
 
-use utils::*;
-use webgl_registry::*;
+use crate::utils::*;
+use crate::webgl_registry::*;
 
 #[allow(missing_copy_implementations)]
 #[derive(Debug)]

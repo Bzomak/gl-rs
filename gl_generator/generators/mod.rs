@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use registry::{Cmd, Enum, Registry};
+use crate::registry::{Cmd, Enum, Registry};
 use std::io;
-use Api;
+use crate::Api;
 
 mod common;
 pub mod debug_struct_gen;

@@ -22,8 +22,8 @@ use xml::attribute::OwnedAttribute;
 use xml::reader::XmlEvent;
 use xml::EventReader as XmlEventReader;
 
-use registry::{Binding, Cmd, Enum, GlxOpcode, Group, Registry};
-use {Api, Fallbacks, Profile};
+use crate::registry::{Binding, Cmd, Enum, GlxOpcode, Group, Registry};
+use crate::{Api, Fallbacks, Profile};
 
 pub fn from_xml<R: io::Read>(src: R, filter: &Filter, require_feature: bool) -> Registry {
     XmlEventReader::new(src)
@@ -1095,7 +1095,7 @@ pub fn to_rust_ty<T: AsRef<str>>(ty: T) -> Cow<'static, str> {
 #[cfg(test)]
 mod tests {
     mod underscore_numeric_prefix {
-        use registry::parse;
+        use crate::registry::parse;
 
         #[test]
         fn test_numeric_prefix() {
@@ -1112,7 +1112,7 @@ mod tests {
     }
 
     mod underscore_keyword {
-        use registry::parse;
+        use crate::registry::parse;
 
         #[test]
         fn test_keyword() {
@@ -1128,7 +1128,7 @@ mod tests {
         }
     }
     mod make_enum {
-        use registry::parse;
+        use crate::registry::parse;
 
         #[test]
         fn test_cast_0() {
@@ -1224,7 +1224,7 @@ mod tests {
     }
 
     mod make_egl_enum {
-        use registry::parse;
+        use crate::registry::parse;
 
         #[test]
         fn test_cast_egl() {
@@ -1300,7 +1300,7 @@ mod tests {
             use xml::namespace::Namespace;
             use xml::reader::XmlEvent;
 
-            use registry::parse::{Attribute, ParseEvent};
+            use crate::registry::parse::{Attribute, ParseEvent};
 
             #[test]
             fn test_start_event() {

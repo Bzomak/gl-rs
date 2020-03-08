@@ -1,4 +1,4 @@
-use registry::Registry;
+use crate::registry::Registry;
 use std::io;
 
 /// Creates a `__gl_imports` module which contains all the external symbols that we need for the

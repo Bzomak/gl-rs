@@ -21,7 +21,7 @@ use std::hash::Hash;
 use std::io;
 use std::ops::{Add, AddAssign};
 
-use Generator;
+use crate::Generator;
 
 mod parse;
 
