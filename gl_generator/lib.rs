@@ -62,9 +62,6 @@
 //! - `NativeWindowType`
 //!
 
-#[macro_use]
-extern crate log;
-
 #[cfg(feature = "unstable_generator_utils")]
 pub mod generators;
 #[cfg(not(feature = "unstable_generator_utils"))]
