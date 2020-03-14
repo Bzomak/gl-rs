@@ -47,7 +47,6 @@ fn write_impl(registry: &Registry, dest: &mut dyn io::Write) -> io::Result<()> {
         writeln!(
             dest,
             "#[allow(non_snake_case)]
-            // #[allow(unused_variables)]
             #[allow(dead_code)]
             #[inline]
             pub unsafe fn {name}(&self, {typed_params}){return_suffix} {{
@@ -75,7 +74,6 @@ fn write_fns(registry: &Registry, dest: &mut dyn io::Write) -> io::Result<()> {
         dest,
         "
         #[allow(non_snake_case)]
-        #[allow(unused_variables)]
         #[allow(dead_code)]
         extern \"system\" {{"
     )?;

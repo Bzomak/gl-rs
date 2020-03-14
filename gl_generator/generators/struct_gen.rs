@@ -42,7 +42,7 @@ fn write_impl(registry: &Registry, dest: &mut dyn io::Write) -> io::Result<()> {
             /// ~~~ignore
             /// let gl = Gl::load_with(|s| glfw.get_proc_address(s));
             /// ~~~
-            #[allow(dead_code, unused_variables)]
+            #[allow(dead_code)]
             pub fn load_with<F>(mut loadfn: F) -> {api} where F: FnMut(&'static str) -> *const __gl_imports::raw::c_void {{
                 #[inline(never)]
                 fn do_metaloadfn(loadfn: &mut dyn FnMut(&'static str) -> *const __gl_imports::raw::c_void,
@@ -93,7 +93,7 @@ fn write_impl(registry: &Registry, dest: &mut dyn io::Write) -> io::Result<()> {
     for cmd in &registry.cmds {
         writeln!(
             dest,
-            "#[allow(non_snake_case, unused_variables, dead_code)]
+            "#[allow(non_snake_case, dead_code)]
             #[inline] pub unsafe fn {name}(&self, {params}){return_suffix} {{ \
                 __gl_imports::mem::transmute::<_, extern \"system\" fn({typed_params}){return_suffix}>\
                     (self.{name}.f)({idents}) \

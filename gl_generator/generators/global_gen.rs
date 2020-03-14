@@ -67,7 +67,7 @@ fn write_fns(registry: &Registry, dest: &mut dyn io::Write) -> io::Result<()> {
         }
         writeln!(
             dest,
-            "#[allow(non_snake_case, unused_variables, dead_code)] #[inline]
+            "#[allow(non_snake_case, dead_code)] #[inline]
             pub unsafe fn {name}({params}){return_suffix} {{ \
                 __gl_imports::mem::transmute::<_, extern \"system\" fn({typed_params}){return_suffix}>\
                     (storage::{name}.f)({idents}) \
@@ -101,7 +101,8 @@ fn write_ptrs(registry: &Registry, dest: &mut dyn io::Write) -> io::Result<()> {
     for c in &registry.cmds {
         writeln!(
             dest,
-            "pub static mut {name}: FnPtr = FnPtr {{
+            "
+            pub static mut {name}: FnPtr = FnPtr {{
                 f: super::missing_fn_panic as *const raw::c_void,
                 is_loaded: false
             }};",
