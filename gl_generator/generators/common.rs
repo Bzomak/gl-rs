@@ -30,10 +30,10 @@ pub fn write_header(dest: &mut dyn io::Write, send: bool) -> io::Result<()> {
 pub fn write_type_aliases(registry: &Registry, dest: &mut dyn io::Write) -> io::Result<()> {
     writeln!(
         dest,
-        r#"
+        "
         pub mod types {{
             #![allow(non_camel_case_types, non_snake_case, dead_code, missing_copy_implementations)]
-    "#
+    "
     )?;
 
     super::gen_types(registry.api, dest)?;

@@ -38,7 +38,7 @@ impl super::Generator for GlobalGenerator {
 fn write_metaloadfn(dest: &mut dyn io::Write) -> io::Result<()> {
     writeln!(
         dest,
-        r#"
+        "
         #[inline(never)]
         fn metaloadfn(loadfn: &mut dyn FnMut(&'static str) -> *const __gl_imports::raw::c_void,
                       symbol: &'static str,
@@ -52,7 +52,7 @@ fn write_metaloadfn(dest: &mut dyn io::Write) -> io::Result<()> {
             }}
             ptr
         }}
-    "#
+    "
     )
 }
 
@@ -134,7 +134,7 @@ fn write_fn_mods(registry: &Registry, dest: &mut dyn io::Write) -> io::Result<()
 
         writeln!(
             dest,
-            r##"
+            "
             #[allow(non_snake_case)]
             pub mod {fnname} {{
                 use super::{{storage, metaloadfn}};
@@ -150,11 +150,11 @@ fn write_fn_mods(registry: &Registry, dest: &mut dyn io::Write) -> io::Result<()
                 #[allow(dead_code)]
                 pub fn load_with<F>(mut loadfn: F) where F: FnMut(&'static str) -> *const raw::c_void {{
                     unsafe {{
-                        storage::{fnname} = FnPtr::new(metaloadfn(&mut loadfn, "{symbol}", {fallbacks}))
+                        storage::{fnname} = FnPtr::new(metaloadfn(&mut loadfn, \"{symbol}\", {fallbacks}))
                     }}
                 }}
             }}
-        "##,
+        ",
             fnname = fnname,
             fallbacks = fallbacks,
             symbol = symbol
