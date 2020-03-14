@@ -42,11 +42,19 @@ pub fn write_type_aliases(registry: &Registry, dest: &mut dyn io::Write) -> io::
 
 /// Creates all the `<enum>` elements at the root of the bindings.
 pub fn write_enums(registry: &Registry, dest: &mut dyn io::Write) -> io::Result<()> {
+    writeln!(
+        dest,
+        "
+    pub use consts::*;
+    mod consts {{
+        #![allow(dead_code)]
+        use super::types::*;
+        "
+    )?;
     for enm in &registry.enums {
-        super::gen_enum_item(enm, "types::", dest)?;
+        super::gen_enum_item(enm, dest)?;
     }
-
-    Ok(())
+    writeln!(dest, "    }}")
 }
 
 /// Creates a `FnPtr` structure which contains the store for a single binding.

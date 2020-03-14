@@ -45,16 +45,11 @@ pub fn gen_struct_name(api: Api) -> &'static str {
 }
 
 /// This function generates a `const name: type = value;` item.
-pub fn gen_enum_item(enm: &Enum, types_prefix: &str, dest: &mut dyn io::Write) -> io::Result<()> {
+pub fn gen_enum_item(enm: &Enum, dest: &mut dyn io::Write) -> io::Result<()> {
     writeln!(
         dest,
-        "#[allow(dead_code)] pub const {ident}: {types_prefix}{ty} = {value}{cast_suffix};",
+        "        pub const {ident}: {ty} = {value}{cast_suffix};",
         ident = enm.ident.to_ascii_uppercase(),
-        types_prefix = if enm.ty == "&'static str" {
-            ""
-        } else {
-            types_prefix
-        },
         ty = if enm.ty == "&'static str" {
             "&str"
         } else {
@@ -62,7 +57,7 @@ pub fn gen_enum_item(enm: &Enum, types_prefix: &str, dest: &mut dyn io::Write) -
         },
         value = enm.value,
         cast_suffix = if enm.cast {
-            format!(" as {}{}", types_prefix, enm.ty)
+            format!(" as {}", enm.ty)
         } else {
             String::new()
         },
