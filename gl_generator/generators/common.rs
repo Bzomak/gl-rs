@@ -13,8 +13,7 @@ pub fn write_header(dest: &mut dyn io::Write, send: bool) -> io::Result<()> {
         mod __gl_imports {{{send}
             pub use std::mem;
             pub use std::os::raw;
-        }}
-        ",
+        }}",
         send = if send {
             "
             pub use std::marker::Send;"
@@ -120,7 +119,8 @@ pub fn write_fnptr_struct_def(dest: &mut dyn io::Write, global: bool) -> io::Res
 pub fn write_panicking_fns(registry: &Registry, dest: &mut dyn io::Write) -> io::Result<()> {
     writeln!(
         dest,
-        "#[inline(never)]
+        "
+        #[inline(never)]
         fn missing_fn_panic() -> ! {{
             panic!(\"{api} function was not loaded\")
         }}",

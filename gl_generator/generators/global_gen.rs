@@ -51,8 +51,7 @@ fn write_metaloadfn(dest: &mut dyn io::Write) -> io::Result<()> {
                 }}
             }}
             ptr
-        }}
-    "
+        }}"
     )
 }
 
@@ -62,16 +61,23 @@ fn write_metaloadfn(dest: &mut dyn io::Write) -> io::Result<()> {
 ///  by `write_ptrs`.
 fn write_fns(registry: &Registry, dest: &mut dyn io::Write) -> io::Result<()> {
     for cmd in &registry.cmds {
-        if let Some(v) = registry.aliases.get(&cmd.proto.ident) {
-            writeln!(dest, "/// Fallbacks: {}", v.join(", "))?;
-        }
         writeln!(
             dest,
-            "#[allow(non_snake_case, dead_code)] #[inline]
-            pub unsafe fn {name}({params}){return_suffix} {{ \
+            "
+            {fallbacks}#[allow(non_snake_case, dead_code)]
+            #[inline] pub unsafe fn {name}({params}){return_suffix} {{
                 __gl_imports::mem::transmute::<_, extern \"system\" fn({typed_params}){return_suffix}>\
-                    (storage::{name}.f)({idents}) \
+                    (storage::{name}.f)({idents})
             }}",
+            fallbacks = if let Some(v) = registry.aliases.get(&cmd.proto.ident) {
+                format!(
+                    "/// Fallbacks: {}
+            ",
+                    v.join(", ")
+                )
+            } else {
+                String::new()
+            },
             name = cmd.proto.ident,
             params = super::gen_parameters(cmd, true, true).join(", "),
             typed_params = super::gen_parameters(cmd, false, true).join(", "),
@@ -154,8 +160,7 @@ fn write_fn_mods(registry: &Registry, dest: &mut dyn io::Write) -> io::Result<()
                         storage::{fnname} = FnPtr::new(metaloadfn(&mut loadfn, \"{symbol}\", {fallbacks}))
                     }}
                 }}
-            }}
-        ",
+            }}",
             fnname = fnname,
             fallbacks = fallbacks,
             symbol = symbol
@@ -181,13 +186,13 @@ fn write_load_fn(registry: &Registry, dest: &mut dyn io::Write) -> io::Result<()
         pub fn load_with<F>(mut loadfn: F) where F: FnMut(&'static str) -> *const __gl_imports::raw::c_void {{
             #[inline(never)]
             fn inner(loadfn: &mut dyn FnMut(&'static str) -> *const __gl_imports::raw::c_void) {{
-    "
+"
     )?;
 
     for c in &registry.cmds {
         writeln!(
             dest,
-            "{cmd_name}::load_with(&mut *loadfn);",
+            "               {cmd_name}::load_with(&mut *loadfn);",
             cmd_name = &c.proto.ident[..]
         )?;
     }
